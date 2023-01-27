@@ -46,6 +46,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/faculties - получение списка кафедр (институтов)
     public static ArrayList<Faculty> getFaculties() {
         try {
             ArrayList<Faculty> answer = new ArrayList<>();
@@ -63,6 +64,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/faculties/id - получение по id кафедры (института) названия
     public static Faculty getFacultyById(int id) {
         try {
             JSONObject jsonObject = request(LINK + "faculties/" + id);
@@ -77,6 +79,8 @@ public class RuzSpbStu {
         }
     }
 
+    // TODO: А нафига тут ArrayList. ArrayList заменить на List, либо вообще на Faculty
+    // Получение факультета по имени, смысла в массиве не вижу...
     public static ArrayList<Faculty> searchFacultiesByName(String name) {
         ArrayList<Faculty> faculties = getFaculties();
         ArrayList<Faculty> result = new ArrayList<>();
@@ -89,7 +93,8 @@ public class RuzSpbStu {
         return result;
     }
 
-    public static ArrayList<Group> getGroupsbyFacultyId(int id) {
+    // https://ruz.spbstu.ru/api/v1/ruz/faculties/id/groups - группы, пренадлежащие институту по его id
+    public static ArrayList<Group> getGroupsByFacultyId(int id) {
         try {
             if (Objects.requireNonNull(request(LINK + "faculties/" + id)).get("error") != null) {
                 throw new RuzApiException(Objects.requireNonNull(request(LINK +
@@ -102,6 +107,8 @@ public class RuzSpbStu {
         }
     }
 
+    // TODO: 2 одинаковых запроса в 1 функции
+    // https://ruz.spbstu.ru/api/v1/ruz/search/groups?q=name - поиск группы по имени
     public static ArrayList<Group> searchGroupsByName(String name) {
         try {
             if (Objects.requireNonNull(request(LINK + "search/groups?q=" + name)).get("groups") == null) {
@@ -114,6 +121,8 @@ public class RuzSpbStu {
         }
     }
 
+    // TODO: функция совсем не паблик должна быть
+    // Парсит список групп в массив
     public static ArrayList<Group> getGroupArrayList(JSONObject jsonObject) {
         try {
             ArrayList<Group> answer = new ArrayList<>();
@@ -130,10 +139,14 @@ public class RuzSpbStu {
         }
     }
 
+    // Список всех преподавателей
+    // https://ruz.spbstu.ru/api/v1/ruz/teachers
     public static ArrayList<Teacher> getTeachers() {
         return getTeacherArrayList(request(LINK + "teachers"));
     }
 
+    // Поиск преподавателя по id
+    // https://ruz.spbstu.ru/api/v1/ruz/teachers/id
     public static Teacher getTeacherById(int id) {
         try {
             JSONObject jsonObject = request(LINK + "teachers/" + id);
@@ -148,6 +161,8 @@ public class RuzSpbStu {
         }
     }
 
+    // Поиск учителя по части имени/фамилии/отчеству/full_name (заменить пробелы на %20 при запросе)
+    // https://ruz.spbstu.ru/api/v1/ruz/search/teachers?q=name
     public static ArrayList<Teacher> searchTeachersByName(String name) {
         name = name.replace(" ", "%20");
         try {
@@ -162,6 +177,7 @@ public class RuzSpbStu {
         }
     }
 
+    // Преобразует json резултат из учителей в список учителей
     public static ArrayList<Teacher> getTeacherArrayList(JSONObject jsonObject) {
         try {
             ArrayList<Teacher> answer = new ArrayList<>();
@@ -179,6 +195,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/buildings - список "сооружений"/корпусов. (Обратите внимание что в нем куча мусорных значений)
     public static ArrayList<Building> getBuildings() {
         try {
             ArrayList<Building> answer = new ArrayList<>();
@@ -196,6 +213,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/buildings/id - получение сооружения по id
     public static Building getBuildingById(int id) {
         try {
             JSONObject jsonObject = request(LINK + "buildings/" + id);
@@ -210,6 +228,7 @@ public class RuzSpbStu {
         }
     }
 
+    // Поиск сооружения по имени, спользуя простое совпадение значений
     public static ArrayList<Building> searchBuildingsByName(String name) {
         ArrayList<Building> buildings = getBuildings();
         ArrayList<Building> result = new ArrayList<>();
@@ -222,6 +241,7 @@ public class RuzSpbStu {
         return result;
     }
 
+    // Поиск аудитории по имени
     public static ArrayList<Auditory> searchAuditoriesByName(String name) {
         ArrayList<Auditory> result = new ArrayList<>();
         ArrayList<Building> buildings = getBuildings();
@@ -240,6 +260,7 @@ public class RuzSpbStu {
         return result;
     }
 
+    // Поиск сооружения по id аудитории путем перебора всех id аудиторий во всех зданиях
     public static Building findBuildingByAuditoryId(int id) {
         ArrayList<Building> buildings = getBuildings();
         for (int i = 0; i < Objects.requireNonNull(buildings).size(); i++) {
@@ -252,6 +273,7 @@ public class RuzSpbStu {
         return null;
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/buildings/id/rooms - аудитории по id здания
     public static Auditory getAuditoriesByBuildingId(int id) {
         try {
             if (Objects.requireNonNull(request(LINK + "buildings/" + id)).get("error") != null) {
@@ -336,6 +358,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/scheduler/id Получение расписания по id группы
     public static Schedule getScheduleByGroupId(int id) {
         try {
             JSONObject jsonObject = request(LINK + "scheduler/" + id);
@@ -350,6 +373,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/scheduler/id?date=date Получение расписания по id группы на неделю с определенной датой
     public static Schedule getScheduleByGroupIdAndDate(int id, LocalDate date) {
         try {
             JSONObject jsonObject = request(LINK + "scheduler/" + id +
@@ -365,6 +389,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/teachers/id/scheduler Раписание учителя на неделю по его id
     public static Schedule getScheduleByTeacherId(int id) {
         try {
             JSONObject jsonObject = request(LINK + "teachers/" + id + "/scheduler");
@@ -379,6 +404,7 @@ public class RuzSpbStu {
         }
     }
 
+    // https://ruz.spbstu.ru/api/v1/ruz/teachers/id/scheduler Раписание учителя на неделю с днем date по его id
     public static Schedule getScheduleByTeacherIdAndDate(int id, LocalDate date) {
         try {
             JSONObject jsonObject = request(LINK + "teachers/" + id +
@@ -394,6 +420,9 @@ public class RuzSpbStu {
         }
     }
 
+    // Функция ищет расписание по адуитории
+    // В основе лежит запрос формата: https://ruz.spbstu.ru/api/v1/ruz/buildings/id_building/rooms/id_room/scheduler
+    // Где id_building - id здания, а id_room - id комнаты
     public static Schedule getScheduleByAuditoryId(int id) {
         try {
             JSONObject jsonObject = request(LINK + "buildings/" +
@@ -409,6 +438,7 @@ public class RuzSpbStu {
         }
     }
 
+    // Аналогично функции выше, только с датой
     public static Schedule getScheduleByAuditoryIdAndDate(int id, LocalDate date) {
         try {
             JSONObject jsonObject = request(LINK + "buildings/" +
